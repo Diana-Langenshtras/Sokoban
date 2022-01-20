@@ -62,7 +62,7 @@ namespace kursach
                     }
             }
             cell[x, y] = c;
-            box[x, y].Image = CellToPicture(c);
+            box[x, y].Image = Images.CellToPicture(c);
         }
         public void InitPictures() //создает массив из картинок
         {
@@ -91,7 +91,7 @@ namespace kursach
             for (int x = 0; x < width; x++)
                 for (int y = 0; y < height; y++)
                 {
-                    box[x, y].Image = CellToPicture(cell[x, y]);
+                    box[x, y].Image = Images.CellToPicture(cell[x, y]);
                 }
         }
 
@@ -148,25 +148,6 @@ namespace kursach
         {
             SetCurrentCell(Cell.user);
         }
-        private void ToolResizeAddRow_Click(object sender, EventArgs e)
-        {
-            ResizeLevel(width, height + 1);
-        }
-
-        private void ToolResizeDelRow_Click(object sender, EventArgs e)
-        {
-            ResizeLevel(width, height - 1);
-        }
-
-        private void ToolResizeAddCol_Click(object sender, EventArgs e)
-        {
-            ResizeLevel(width + 1, height);
-        }
-
-        private void ToolResizeDelCol_Click(object sender, EventArgs e)
-        {
-            ResizeLevel(width - 1, height);
-        }
         private void ResizeLevel(int w, int h)
         {
             if (w < MinWidth || w > MaxWidth || h < MinHeight || h > MaxHeight) return;
@@ -198,15 +179,15 @@ namespace kursach
         {
             SaveLevel();
         }
-        private void SaveLevel()
+        private bool SaveLevel()
         {
             string error = IsGoodLevel();
             if (error != "")
             {
                 MessageBox.Show(error, "Ошибка!");
-                return;
+                return false;
             }
-            level.SaveLevel(CurrentLevel, cell);
+            level.SaveLevel(CurrentLevel, cell); return true;
         }
 
         private void toolPrev_Click(object sender, EventArgs e)
@@ -222,6 +203,7 @@ namespace kursach
         {
             cell = level.EditorLoadLevel(CurrentLevel);
             width = cell.GetLength(0); height = cell.GetLength(1);
+            toolStripTextBoxLabirintSize.Text = width.ToString() + "x" + height.ToString();
             panel1.Controls.Clear();
             InitPictures();
             LoadPictures();
@@ -229,30 +211,10 @@ namespace kursach
 
         private void toolNext_Click(object sender, EventArgs e)
         {
-            SaveLevel();
+            if (SaveLevel())
             CurrentLevel++;
             LoadLevel();
-        }
-
-        private void toolResizeAdd10Row_Click(object sender, EventArgs e)
-        {
-            ResizeLevel(width, height + 10);
-        }
-
-        private void toolResizeDel10Row_Click(object sender, EventArgs e)
-        {
-            ResizeLevel(width, height - 10);
-        }
-
-        private void toolResizeAdd10Col_Click(object sender, EventArgs e)
-        {
-            ResizeLevel(width + 10, height);
-        }
-
-        private void toolResizeDel10Col_Click(object sender, EventArgs e)
-        {
-            ResizeLevel(width - 10, height);
-        }
+        }    
 
         private void toolMenu_Click(object sender, EventArgs e)
         {
@@ -285,7 +247,23 @@ namespace kursach
                         count++;
             return count;
         }
-        public Image CellToPicture(Cell c)
+
+        private void toolStripButtonSetSize_Click(object sender, EventArgs e)
+        {
+            string[] dl = { "x" };
+            string[] wh = toolStripTextBoxLabirintSize.Text.Split(dl, StringSplitOptions.RemoveEmptyEntries);
+            int w = int.Parse(wh[0]);
+            int h = int.Parse(wh[1]);
+            ResizeLevel(w, h);
+        }
+
+        private void toolStripTextBoxLabirintSize_KeyDown(object sender, KeyEventArgs e)
+        {
+            if (e.KeyCode == Keys.Enter)
+                toolStripButtonSetSize_Click(sender, null);
+        }
+
+     /*   public Image CellToPicture(Cell c)
         {
             switch (c)
             {
@@ -297,6 +275,6 @@ namespace kursach
                 case Cell.user: return Properties.Resources.user1;
                 default: return Properties.Resources.none;
             }
-        }
+        }*/
     }
 }
