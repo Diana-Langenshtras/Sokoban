@@ -11,13 +11,7 @@ using System.Windows.Forms;
 namespace kursach
 {
     public partial class SokobanEditor : Form
-    {
-        //ячейка игры
-        public enum Cell
-            {
-              none, wall, abox, done, here, user
-            };
-
+    {       
         PictureBox[,] box;
         Cell[,] cell;
         int width, height;
@@ -187,19 +181,7 @@ namespace kursach
             InitPictures();
             LoadPictures();
         }
-        private Image CellToPicture(Cell c)
-        {
-            switch (c)
-            {
-                case Cell.none: return Properties.Resources.none;
-                case Cell.abox: return Properties.Resources.abox;
-                case Cell.done: return Properties.Resources.done;
-                case Cell.here : return Properties.Resources.here;
-                case Cell.user: return Properties.Resources.user1;
-                case Cell.wall: return Properties.Resources.wall;
-                default: return Properties.Resources.none;
-            }
-        }
+        
         private string IsGoodLevel()
         {
             int users = CountItems(Cell.user);
@@ -238,7 +220,7 @@ namespace kursach
         }
         private void LoadLevel()
         {
-            cell = level.LoadLevel(CurrentLevel);
+            cell = level.EditorLoadLevel(CurrentLevel);
             width = cell.GetLength(0); height = cell.GetLength(1);
             panel1.Controls.Clear();
             InitPictures();
@@ -252,6 +234,48 @@ namespace kursach
             LoadLevel();
         }
 
+        private void toolResizeAdd10Row_Click(object sender, EventArgs e)
+        {
+            ResizeLevel(width, height + 10);
+        }
+
+        private void toolResizeDel10Row_Click(object sender, EventArgs e)
+        {
+            ResizeLevel(width, height - 10);
+        }
+
+        private void toolResizeAdd10Col_Click(object sender, EventArgs e)
+        {
+            ResizeLevel(width + 10, height);
+        }
+
+        private void toolResizeDel10Col_Click(object sender, EventArgs e)
+        {
+            ResizeLevel(width - 10, height);
+        }
+
+        private void toolMenu_Click(object sender, EventArgs e)
+        {
+            bool create = false;
+
+            foreach (Form form in Application.OpenForms)
+            {
+                if (form.Name.ToString() == "Menu")
+                {
+                    this.Hide();
+                    form.Visible = true;
+                    create = true;
+                    break;
+                }
+            }
+            if (create == false)
+            {
+                Menu s = new Menu();
+                this.Hide();
+                s.Show();
+            }
+        }
+
         private int CountItems(Cell item)
         {
             int count = 0;
@@ -260,6 +284,19 @@ namespace kursach
                     if (cell[x, y] == item)
                         count++;
             return count;
+        }
+        public Image CellToPicture(Cell c)
+        {
+            switch (c)
+            {
+                case Cell.none: return Properties.Resources.none;
+                case Cell.wall: return Properties.Resources.wall;
+                case Cell.abox: return Properties.Resources.abox;
+                case Cell.here: return Properties.Resources.here;
+                case Cell.done: return Properties.Resources.done;
+                case Cell.user: return Properties.Resources.user1;
+                default: return Properties.Resources.none;
+            }
         }
     }
 }
