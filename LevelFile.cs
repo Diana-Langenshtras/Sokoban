@@ -16,6 +16,7 @@ namespace kursach
         {
             this.filename = filename;
         }
+        //функция дря загрузки уровня, возвращает матрицу ячеек, где находится загруженный уровень
         public Cell [,] LoadLevel (int level_nr) //для загрузки уровня в матрицу из файла
         {
             Cell[,] cell = null;
@@ -43,7 +44,11 @@ namespace kursach
                 }
                 else curr = curr + 1 + height; //если не совпали то пропускаем строку с данными об уровне, сам уровень и переходим к следующему
             }
-            if (cell == null) //если след уровень не нашли (не существует)
+
+            //этот кусок только для редактора 
+            //разделить потом этот код для редактора и для игры
+
+        /*    if (cell == null) //если след уровень не нашли (не существует)
             {
                 Array.Resize(ref lines, lines.Length + new_level_size + 1);
                 lines[curr] = (curr_level_nr + 1).ToString() + " " + new_level_size.ToString() + " " + new_level_size.ToString();
@@ -51,7 +56,49 @@ namespace kursach
                     lines[curr + j + 1] = new String(' ', new_level_size);
                 File.WriteAllLines(filename, lines);
                 return LoadLevel(level_nr);
+            }*/
+            return cell;
+        }
+        public Cell[,] EditorLoadLevel(int level_nr) //для загрузки уровня в матрицу из файла
+        {
+            Cell[,] cell = null;
+            string[] lines;
+            try
+            {
+                lines = File.ReadAllLines(filename); //считываем уровень из файла
             }
+            catch { return cell; }
+            int curr = 0;
+            int curr_level_nr = 0;
+            int width;
+            int height;
+            while (curr < lines.Length) //пока не дошли до конца массива
+            {
+                ReadLevelHeader(lines[curr], out curr_level_nr, out width, out height); // считали данные об уровне
+                if (level_nr == curr_level_nr)
+                {
+                    cell = new Cell[width, height];
+                    for (int y = 0; y < height; y++)
+                        for (int x = 0; x < width; x++)
+                            cell[x, y] = CharToCell(lines[curr + 1 + y][x]);
+
+                    break;
+                }
+                else curr = curr + 1 + height; //если не совпали то пропускаем строку с данными об уровне, сам уровень и переходим к следующему
+            }
+
+            //этот кусок только для редактора 
+            //разделить потом этот код для редактора и для игры
+
+                if (cell == null) //если след уровень не нашли (не существует)
+                {
+                    Array.Resize(ref lines, lines.Length + new_level_size + 1);
+                    lines[curr] = (curr_level_nr + 1).ToString() + " " + new_level_size.ToString() + " " + new_level_size.ToString();
+                    for (int j = 0; j < new_level_size; j++)
+                        lines[curr + j + 1] = new String(' ', new_level_size);
+                    File.WriteAllLines(filename, lines);
+                    return LoadLevel(level_nr);
+                }
             return cell;
         }
         private void ReadLevelHeader(string line, out int level_nr, out int width, out int height)
