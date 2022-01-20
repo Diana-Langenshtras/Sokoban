@@ -146,8 +146,8 @@ namespace kursach
             if (new_length < old_length)
             {
                 Array.Resize(ref lines, new_length);
-                for (int z = curr; z < new_length; z++)
-                    lines[z] = lines[z - delta];
+                for (int z = curr+1; z < new_length; z++)
+                    lines[z] = lines[z + delta];
             }
             int w = cell.GetLength(0);
             int h = cell.GetLength(1);
